@@ -8,4 +8,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
     console.warn('Supabase URL or Key missing in .env.local');
 }
 
-export const supabase = createClient<Database>(supabaseUrl || '', supabaseAnonKey || '');
+// Fallback para evitar crash crítico se as env vars não estiverem definidas (ex: build time ou esquecimento no deploy)
+const fallbackUrl = 'https://placeholder.supabase.co';
+const fallbackKey = 'placeholder';
+
+export const supabase = createClient<Database>(
+    supabaseUrl || fallbackUrl,
+    supabaseAnonKey || fallbackKey
+);
