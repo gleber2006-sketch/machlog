@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
+import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
-import { Database } from '../lib/database.types';
+import type { Database } from '../lib/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
