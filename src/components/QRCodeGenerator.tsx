@@ -1,6 +1,6 @@
-import { X, Printer, Download } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 import QRCode from 'react-qr-code';
-import { Database } from '../lib/database.types';
+import type { Database } from '../lib/database.types';
 
 type Machine = Database['public']['Tables']['machines']['Row'];
 

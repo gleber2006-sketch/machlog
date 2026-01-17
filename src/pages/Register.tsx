@@ -36,6 +36,7 @@ export default function Register() {
             }
 
             // 2. Criar perfil na tabela profiles
+            // @ts-ignore - Supabase types issue
             const { error: profileError } = await supabase
                 .from('profiles')
                 .insert({

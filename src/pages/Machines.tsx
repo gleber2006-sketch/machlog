@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Database } from '../lib/database.types';
+import type { Database } from '../lib/database.types';
 import MachineList from '../components/MachineList';
 import MachineForm from '../components/MachineForm';
 import QRCodeGenerator from '../components/QRCodeGenerator';

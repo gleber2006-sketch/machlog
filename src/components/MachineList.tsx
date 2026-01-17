@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { Database } from '../lib/database.types';
-import { Plus, Search, QrCode, Edit, Trash2 } from 'lucide-react';
+import type { Database } from '../lib/database.types';
+import { Plus, Search, QrCode, Edit } from 'lucide-react';
 
 type Machine = Database['public']['Tables']['machines']['Row'];
 

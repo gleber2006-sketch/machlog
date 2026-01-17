@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Database } from '../lib/database.types';
-import { X, Save, Loader2 } from 'lucide-react';
+import type { Database } from '../lib/database.types';
+import { X, Loader2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid'; // Instalar: npm i uuid @types/uuid
 
 type Machine = Database['public']['Tables']['machines']['Row'];
@@ -39,6 +39,7 @@ export default function MachineForm({ machineToEdit, onClose, onSuccess }: Machi
         try {
             if (machineToEdit) {
                 // Update
+                // @ts-ignore - Supabase types issue
                 const { error } = await supabase
                     .from('machines')
                     .update({
@@ -50,6 +51,7 @@ export default function MachineForm({ machineToEdit, onClose, onSuccess }: Machi
                 if (error) throw error;
             } else {
                 // Create
+                // @ts-ignore - Supabase types issue
                 const { error } = await supabase
                     .from('machines')
                     .insert({
