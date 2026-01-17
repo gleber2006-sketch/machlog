@@ -66,12 +66,21 @@ function Dashboard() {
                         </p>
                     </Link>
 
-                    {/* Placeholder para futuras funcionalidades */}
-                    <div className="bg-gray-50 p-6 rounded-xl border border-dashed border-gray-200 opacity-75">
-                        <div className="w-12 h-12 bg-gray-200 rounded-lg mb-4"></div>
-                        <h3 className="font-semibold text-gray-400 mb-2">Check-in Operacional</h3>
-                        <p className="text-sm text-gray-400">Em breve...</p>
-                    </div>
+                    {/* Card Scanner para Operadores */}
+                    <Link to="/operator" className="bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow group border border-gray-100">
+                        <div className="w-12 h-12 bg-green-50 text-green-600 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                        </div>
+                        <h3 className="font-semibold text-lg text-gray-900 mb-2 flex items-center justify-between">
+                            Escanear Máquina
+                            <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-green-500 transition-colors" />
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            Escaneie QR Code e faça check-in para iniciar inspeção.
+                        </p>
+                    </Link>
                 </div>
             </main>
         </div>
@@ -79,6 +88,8 @@ function Dashboard() {
 }
 
 import Machines from './pages/Machines';
+import OperatorDashboard from './pages/OperatorDashboard';
+import MachineDetail from './pages/MachineDetail';
 
 function App() {
     return (
@@ -100,6 +111,22 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <Machines />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/operator"
+                        element={
+                            <PrivateRoute>
+                                <OperatorDashboard />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/machine/:id"
+                        element={
+                            <PrivateRoute>
+                                <MachineDetail />
                             </PrivateRoute>
                         }
                     />
