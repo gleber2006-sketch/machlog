@@ -109,6 +109,7 @@ import Machines from './pages/Machines';
 import OperatorDashboard from './pages/OperatorDashboard';
 import MachineDetail from './pages/MachineDetail';
 import Users from './pages/Users';
+import Checklist from './pages/Checklist';
 
 function AppRoutes() {
     const { profile } = useAuth();
@@ -158,6 +159,14 @@ function AppRoutes() {
                 element={
                     <PrivateRoute>
                         {profile?.role === 'admin' ? <Users /> : <Navigate to="/" />}
+                    </PrivateRoute>
+                }
+            />
+            <Route
+                path="/checklist/:checkinId"
+                element={
+                    <PrivateRoute>
+                        <Checklist />
                     </PrivateRoute>
                 }
             />

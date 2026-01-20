@@ -130,25 +130,50 @@ CREATE POLICY "Office/Admin can view all checklists" ON public.checklists
 CREATE POLICY "Users can insert their own checklists" ON public.checklists
     FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id);
 
--- 5. CHECKLIST ITEMS
+-- 5. CHECKLIST QUESTIONS (Templates)
+CREATE TABLE public.checklist_questions (
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+    question TEXT NOT NULL,
+    category TEXT NOT NULL,
+    required BOOLEAN DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Seed initial questions
+INSERT INTO public.checklist_questions (question, category) VALUES
+('Nível de óleo do motor', 'Motor'),
+('Sistema de arrefecimento', 'Motor'),
+('Estado dos pneus / esteiras', 'Estrutura'),
+('Luzes e sinalização', 'Segurança'),
+('Sistema hidráulico (vazamentos)', 'Hidráulica'),
+('Freios de serviço e estacionamento', 'Segurança'),
+('Cinto de segurança e assento', 'Cabin'),
+('Ruídos anormais durante operação', 'Operação');
+
+-- 6. CHECKLIST ITEMS (Responses)
 CREATE TABLE public.checklist_items (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    checklist_id UUID REFERENCES public.checklists(id) NOT NULL,
-    issue_type TEXT CHECK (issue_type IN ('noise', 'leak', 'crack', 'breakage', 'missing_part', 'other')) NOT NULL,
-    photo_urls TEXT[], -- Array of strings
+    checklist_id UUID REFERENCES public.checklists(id) ON DELETE CASCADE NOT NULL,
+    question_id UUID REFERENCES public.checklist_questions(id),
+    status TEXT CHECK (status IN ('ok', 'warning', 'fail')) NOT NULL DEFAULT 'ok',
     notes TEXT,
+    photo_urls TEXT[], 
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Enable RLS
+ALTER TABLE public.checklist_questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.checklist_items ENABLE ROW LEVEL SECURITY;
 
--- Checklist Items Policies
-CREATE POLICY "Follows checklist visibility" ON public.checklist_items
+-- Policies
+CREATE POLICY "Everyone can view questions" ON public.checklist_questions FOR SELECT USING (true);
+
+-- Policies for Checklist Items
+CREATE POLICY "Everyone with access can view items" ON public.checklist_items
     FOR SELECT TO authenticated USING (
         EXISTS (SELECT 1 FROM public.checklists WHERE id = checklist_id AND (
             user_id = auth.uid() OR
-            EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+            EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
         ))
     );
 

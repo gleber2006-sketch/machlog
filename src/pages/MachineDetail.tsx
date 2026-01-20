@@ -60,9 +60,8 @@ export default function MachineDetail() {
 
             if (error) throw error;
 
-            // Redirecionar para checklist (a ser implementado)
-            alert('Check-in realizado! Checklist será implementado em breve.');
-            navigate('/operator');
+            // Redirecionar para o checklist detalhado
+            navigate(`/checklist/${data.id}`);
         } catch (err: any) {
             console.error('Erro ao criar check-in:', err);
             setError(err.message || 'Erro ao iniciar inspeção');
