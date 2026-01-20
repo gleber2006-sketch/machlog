@@ -9,6 +9,26 @@ CREATE TABLE public.profiles (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Function to handle new user creation
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, role)
+  VALUES (
+    new.id,
+    COALESCE(new.raw_user_meta_data->>'full_name', 'Novo Usuário'),
+    COALESCE(new.raw_user_meta_data->>'role', 'operator')
+  );
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Trigger to create profile on signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- Enable RLS
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
@@ -167,9 +187,9 @@ CREATE TABLE public.audit_logs (
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- Audit Logs Policies
-CREATE POLICY "Office/Admin can view audit logs" ON public.audit_logs
+CREATE POLICY "Technician/Admin can view audit logs" ON public.audit_logs
     FOR SELECT TO authenticated USING (
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
     );
 
 CREATE POLICY "System/Users can insert logs" ON public.audit_logs

@@ -20,7 +20,7 @@ export default function Register() {
         setError(null);
 
         try {
-            // 1. Criar usuário no Supabase Auth
+            // 1. Criar usuário no Supabase Auth com metadados
             const { data: authData, error: authError } = await supabase.auth.signUp({
                 email,
                 password,
@@ -38,22 +38,13 @@ export default function Register() {
                 throw new Error('Erro ao criar usuário');
             }
 
-            // 2. Criar perfil na tabela profiles
-            // @ts-ignore - Supabase types issue
-            const { error: profileError } = await supabase
-                .from('profiles')
-                .insert({
-                    id: authData.user.id,
-                    full_name: fullName,
-                    role: role,
-                });
+            // Nota: O perfil será criado automaticamente via Trigger no banco de dados.
+            // Isso garante que os dados fiquem sincronizados e evita erros de constraint.
 
-            if (profileError) throw profileError;
-
-            // Redirecionar após 2 segundos
+            // Redirecionar após 1 segundo para dar tempo do trigger processar
             setTimeout(() => {
                 navigate('/users');
-            }, 2000);
+            }, 1000);
 
         } catch (err: any) {
             console.error('Erro no cadastro:', err);
