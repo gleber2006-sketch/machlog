@@ -58,7 +58,13 @@ CREATE TABLE public.machines (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     code TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL,
+    brand TEXT,
+    model TEXT,
+    serial_number TEXT,
+    year_of_manufacture INTEGER,
     location TEXT NOT NULL,
+    description TEXT,
+    main_image_url TEXT,
     qr_code_uuid UUID DEFAULT uuid_generate_v4() NOT NULL UNIQUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

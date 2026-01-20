@@ -37,7 +37,13 @@ export interface Database {
           id: string
           code: string
           name: string
+          brand: string | null
+          model: string | null
+          serial_number: string | null
+          year_of_manufacture: number | null
           location: string
+          description: string | null
+          main_image_url: string | null
           qr_code_uuid: string
           created_at: string
         }
@@ -45,7 +51,13 @@ export interface Database {
           id?: string
           code: string
           name: string
+          brand?: string | null
+          model?: string | null
+          serial_number?: string | null
+          year_of_manufacture?: number | null
           location: string
+          description?: string | null
+          main_image_url?: string | null
           qr_code_uuid?: string
           created_at?: string
         }
@@ -53,7 +65,13 @@ export interface Database {
           id?: string
           code?: string
           name?: string
+          brand?: string | null
+          model?: string | null
+          serial_number?: string | null
+          year_of_manufacture?: number | null
           location?: string
+          description?: string | null
+          main_image_url?: string | null
           qr_code_uuid?: string
           created_at?: string
         }
