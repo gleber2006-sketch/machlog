@@ -12,19 +12,19 @@ export interface Database {
       profiles: {
         Row: {
           id: string
-          role: 'operator' | 'office' | 'admin'
+          role: 'operator' | 'technician' | 'admin'
           full_name: string | null
           created_at: string
         }
         Insert: {
           id: string
-          role?: 'operator' | 'office' | 'admin'
+          role?: 'operator' | 'technician' | 'admin'
           full_name?: string | null
           created_at?: string
         }
         Update: {
           id?: string
-          role?: 'operator' | 'office' | 'admin'
+          role?: 'operator' | 'technician' | 'admin'
           full_name?: string | null
           created_at?: string
         }

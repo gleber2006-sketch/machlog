@@ -17,8 +17,8 @@ export default function OperatorDashboard() {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Operador</h1>
-                    <p className="text-gray-600">Escaneie uma máquina para iniciar inspeção</p>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Inspeção de Máquina</h1>
+                    <p className="text-gray-600">Escaneie uma máquina para iniciar o check-list</p>
                 </div>
 
                 {/* Main Action Button */}

@@ -4,7 +4,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. PROFILES (Extends auth.users)
 CREATE TABLE public.profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
-    role TEXT CHECK (role IN ('operator', 'office', 'admin')) NOT NULL DEFAULT 'operator',
+    role TEXT CHECK (role IN ('operator', 'technician', 'admin')) NOT NULL DEFAULT 'operator',
     full_name TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -21,6 +21,11 @@ CREATE POLICY "Users can insert their own profile" ON public.profiles
 
 CREATE POLICY "Users can update own profile" ON public.profiles
     FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "Admins can manage all profiles" ON public.profiles
+    FOR ALL TO authenticated USING (
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
+    );
 
 -- 2. MACHINES
 CREATE TABLE public.machines (
@@ -39,14 +44,14 @@ ALTER TABLE public.machines ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Machines are viewable by authenticated users" ON public.machines
     FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY "Office/Admin can insert machines" ON public.machines
+CREATE POLICY "Office/Admin/Technician can insert machines" ON public.machines
     FOR INSERT TO authenticated WITH CHECK (
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
     );
 
-CREATE POLICY "Office/Admin can update machines" ON public.machines
+CREATE POLICY "Office/Admin/Technician can update machines" ON public.machines
     FOR UPDATE TO authenticated USING (
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
     );
 
 -- 3. CHECKINS
@@ -67,7 +72,7 @@ CREATE POLICY "Users can view their own checkins" ON public.checkins
 
 CREATE POLICY "Office/Admin can view all checkins" ON public.checkins
     FOR SELECT TO authenticated USING (
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
     );
 
 CREATE POLICY "Users can insert their own checkins" ON public.checkins
@@ -93,7 +98,7 @@ CREATE POLICY "Users can view their own checklists" ON public.checklists
 
 CREATE POLICY "Office/Admin can view all checklists" ON public.checklists
     FOR SELECT TO authenticated USING (
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
     );
 
 CREATE POLICY "Users can insert their own checklists" ON public.checklists
@@ -143,9 +148,9 @@ ALTER TABLE public.documents ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Documents are viewable by authenticated users" ON public.documents
     FOR SELECT TO authenticated USING (true);
 
-CREATE POLICY "Office/Admin can insert documents" ON public.documents
+CREATE POLICY "Office/Admin/Technician can insert documents" ON public.documents
     FOR INSERT TO authenticated WITH CHECK (
-        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('office', 'admin'))
+        EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('technician', 'admin'))
     );
 
 -- 7. AUDIT LOGS

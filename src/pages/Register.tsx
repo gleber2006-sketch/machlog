@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, AlertCircle, User, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, AlertCircle, User, ArrowLeft, Shield } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
+    const [role, setRole] = useState<'operator' | 'technician' | 'admin'>('operator');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
     const navigate = useNavigate();
+    const { profile } = useAuth();
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,6 +27,7 @@ export default function Register() {
                 options: {
                     data: {
                         full_name: fullName,
+                        role: role,
                     }
                 }
             });
@@ -42,16 +45,14 @@ export default function Register() {
                 .insert({
                     id: authData.user.id,
                     full_name: fullName,
-                    role: 'operator', // Padrão: operador (pode ser alterado depois por admin)
+                    role: role,
                 });
 
             if (profileError) throw profileError;
 
-            setSuccess(true);
-
             // Redirecionar após 2 segundos
             setTimeout(() => {
-                navigate('/login');
+                navigate('/users');
             }, 2000);
 
         } catch (err: any) {
@@ -62,17 +63,18 @@ export default function Register() {
         }
     };
 
-    if (success) {
+    if (!profile || profile.role !== 'admin') {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
-                    <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
+                    <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Shield className="w-8 h-8" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Cadastro realizado!</h2>
-                    <p className="text-gray-600">Redirecionando para o login...</p>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Acesso Restrito</h2>
+                    <p className="text-gray-600 mb-6">Apenas administradores podem cadastrar novos usuários no sistema.</p>
+                    <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
+                        Voltar para login
+                    </Link>
                 </div>
             </div>
         );
@@ -84,12 +86,12 @@ export default function Register() {
 
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <Link to="/login" className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
+                    <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
                         <ArrowLeft className="w-4 h-4" />
-                        Voltar para login
-                    </Link>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">MachLog</h1>
-                    <p className="text-gray-600">Crie sua conta</p>
+                        Voltar
+                    </button>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">Machlog</h1>
+                    <p className="text-gray-600">Cadastrar Novo Usuário</p>
                 </div>
 
                 {/* Form */}
@@ -154,21 +156,35 @@ export default function Register() {
                         </div>
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        {loading ? 'Criando conta...' : 'Criar conta'}
-                    </button>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Nível de Acesso
+                        </label>
+                        <select
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all bg-white"
+                            value={role}
+                            onChange={(e) => setRole(e.target.value as any)}
+                        >
+                            <option value="operator">Operador</option>
+                            <option value="technician">Técnico de Manutenção</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+
+                    <div className="pt-2">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {loading ? 'Cadastrando...' : 'Cadastrar Usuário'}
+                        </button>
+                    </div>
                 </form>
 
                 {/* Footer */}
-                <div className="mt-6 text-center text-sm text-gray-600">
-                    Já tem uma conta?{' '}
-                    <Link to="/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                        Fazer login
-                    </Link>
+                <div className="mt-6 text-center text-sm text-gray-500">
+                    O usuário poderá acessar o sistema imediatamente após o cadastro.
                 </div>
             </div>
         </div>
