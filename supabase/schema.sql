@@ -6,22 +6,28 @@ CREATE TABLE public.profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
     role TEXT CHECK (role IN ('operator', 'technician', 'admin')) NOT NULL DEFAULT 'operator',
     full_name TEXT,
+    email TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 -- Function to handle new user creation
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
+RETURNS trigger 
+LANGUAGE plpgsql 
+SECURITY DEFINER 
+SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, role)
+  INSERT INTO public.profiles (id, full_name, role, email)
   VALUES (
     new.id,
     COALESCE(new.raw_user_meta_data->>'full_name', 'Novo Usuário'),
-    COALESCE(new.raw_user_meta_data->>'role', 'operator')
+    COALESCE(new.raw_user_meta_data->>'role', 'operator'),
+    new.email
   );
   RETURN new;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 -- Trigger to create profile on signup
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;

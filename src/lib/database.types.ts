@@ -14,18 +14,21 @@ export interface Database {
           id: string
           role: 'operator' | 'technician' | 'admin'
           full_name: string | null
+          email: string | null
           created_at: string
         }
         Insert: {
           id: string
           role?: 'operator' | 'technician' | 'admin'
           full_name?: string | null
+          email?: string | null
           created_at?: string
         }
         Update: {
           id?: string
           role?: 'operator' | 'technician' | 'admin'
           full_name?: string | null
+          email?: string | null
           created_at?: string
         }
       }
